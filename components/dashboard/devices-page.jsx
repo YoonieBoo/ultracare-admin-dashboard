@@ -165,7 +165,7 @@ export default function DevicesPage() {
       </div>
 
       <div className="overflow-x-auto rounded-md border border-border bg-card shadow-sm">
-        <table className="min-w-[1080px] w-full text-sm">
+        <table className="min-w-[900px] w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/50">
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Device ID</th>

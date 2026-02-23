@@ -220,7 +220,7 @@ export default function Overview() {
         </div>
 
         <div className="overflow-x-auto rounded-md border border-border bg-card shadow-sm">
-          <table className="min-w-[1080px] w-full text-sm">
+          <table className="min-w-[900px] w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50">
                 <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -244,16 +244,13 @@ export default function Overview() {
                 <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Status
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Action
-                </th>
               </tr>
             </thead>
 
             <tbody>
               {recentAlerts.length === 0 ? (
                 <tr>
-                  <td className="px-5 py-6 text-sm text-muted-foreground" colSpan={8}>
+                  <td className="px-5 py-6 text-sm text-muted-foreground" colSpan={7}>
                     No alerts yet.
                   </td>
                 </tr>
@@ -281,11 +278,6 @@ export default function Overview() {
                       <td className="px-5 py-3.5 font-mono text-xs text-foreground">{confidence}</td>
                       <td className="px-5 py-3.5">
                         <StatusBadge status={alert.status} />
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <button className="text-xs font-medium text-primary hover:underline">
-                          View
-                        </button>
                       </td>
                     </tr>
                   );
