@@ -28,8 +28,9 @@ function formatAlertType(type) {
   return type;
 }
 
-function formatTimestamp(iso) {
-  const d = new Date(iso);
+function formatTimestamp(alert) {
+  const d = new Date(alert.timestampIso || alert.createdAt);
+  if (Number.isNaN(d.getTime())) return "-";
   return d.toLocaleString("en-US", {
     month: "short",
     day: "numeric",
@@ -183,7 +184,7 @@ export default function FallAlertsPage() {
           <tbody>
             {filtered.map((alert) => (
               <tr key={alert.id} className="border-b border-border last:border-0 transition-colors hover:bg-muted/30">
-                <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-foreground">{formatTimestamp(alert.timestamp)}</td>
+                <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-foreground">{formatTimestamp(alert)}</td>
                 <td className="px-5 py-3.5 text-foreground">{formatAlertType(alert.normalizedType)}</td>
                 <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-muted-foreground">{alert.deviceId}</td>
                 <td className="px-5 py-3.5 text-foreground">{alert.householdName}</td>
