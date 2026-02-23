@@ -174,14 +174,13 @@ export default function DevicesPage() {
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Registered</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Last Active</th>
-              <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Action</th>
             </tr>
           </thead>
 
           <tbody>
             {devices.length === 0 ? (
               <tr>
-                <td className="px-5 py-6 text-sm text-muted-foreground" colSpan={7}>
+                <td className="px-5 py-6 text-sm text-muted-foreground" colSpan={6}>
                   No devices found.
                 </td>
               </tr>
@@ -196,9 +195,6 @@ export default function DevicesPage() {
                   </td>
                   <td className="px-5 py-3.5 text-muted-foreground">{device.registeredDate}</td>
                   <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-muted-foreground">{device.lastActive}</td>
-                  <td className="px-5 py-3.5">
-                    <button className="text-xs font-medium text-primary hover:underline">View</button>
-                  </td>
                 </tr>
               ))
             )}
