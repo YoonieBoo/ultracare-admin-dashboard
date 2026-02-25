@@ -1,5 +1,4 @@
 import { Analytics } from "@vercel/analytics/next";
-import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
 export const metadata = {
@@ -35,7 +34,6 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className="font-sans antialiased">
         {children}
-        <Toaster />
         <Analytics />
       </body>
     </html>

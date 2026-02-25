@@ -23,7 +23,7 @@ const pages = {
 
 function getPageTitle(activePage) {
   if (activePage === "health") return "System Health";
-  if (activePage === "households") return "Users";
+  if (activePage === "households") return "Household Admins";
   if (activePage === "alerts") return "Alerts";
   return activePage;
 }

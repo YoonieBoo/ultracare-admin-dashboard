@@ -26,16 +26,4 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export async function getAdminUsers() {
-  return (await api.get("/admin/users")).data;
-}
-
-export async function setUserDisabled(id, isDisabled) {
-  return (await api.patch(`/admin/users/${id}/status`, { isDisabled })).data;
-}
-
-export async function updateUserSubscription(id, payload) {
-  return (await api.patch(`/admin/users/${id}/subscription`, payload)).data;
-}
-
 export default api;
