@@ -176,7 +176,6 @@ export default function FallAlertsPage() {
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Device ID</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Household</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Resident</th>
-              <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Confidence</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
             </tr>
           </thead>
@@ -188,7 +187,6 @@ export default function FallAlertsPage() {
                 <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-muted-foreground">{alert.deviceId}</td>
                 <td className="px-5 py-3.5 text-foreground">{alert.householdName}</td>
                 <td className="px-5 py-3.5 text-foreground">{alert.residentName}</td>
-                <td className="px-5 py-3.5 font-mono text-xs text-foreground">{alert.confidence}%</td>
                 <td className="px-5 py-3.5">
                   <StatusBadge status={alert.status} />
                 </td>
