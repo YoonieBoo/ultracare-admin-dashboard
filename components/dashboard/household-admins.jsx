@@ -131,12 +131,11 @@ export default function HouseholdAdmins() {
       {!loading && !err && (
         <div className="rounded-md border border-border bg-card shadow-sm overflow-hidden">
           <div className="grid grid-cols-12 bg-muted/40 px-4 py-2 text-xs font-medium">
-            <div className="col-span-4">Email</div>
-            <div className="col-span-2">Name</div>
+            <div className="col-span-1">ID</div>
+            <div className="col-span-5">Email</div>
             <div className="col-span-2">Created</div>
             <div className="col-span-2">Status</div>
             <div className="col-span-1">Action</div>
-            <div className="col-span-1 text-right">ID</div>
           </div>
 
           {users.length === 0 ? (
@@ -149,8 +148,8 @@ export default function HouseholdAdmins() {
                 key={u.id ?? u.email}
                 className="grid grid-cols-12 px-4 py-3 text-sm border-t"
               >
-                <div className="col-span-4 truncate">{u.email ?? "-"}</div>
-                <div className="col-span-2 truncate">{u.name ?? "-"}</div>
+                <div className="col-span-1 truncate">{u.id ?? "-"}</div>
+                <div className="col-span-5 truncate">{u.email ?? "-"}</div>
                 <div className="col-span-2 truncate">
                   {u.createdAt ? new Date(u.createdAt).toLocaleString() : "-"}
                 </div>
@@ -189,7 +188,6 @@ export default function HouseholdAdmins() {
                     </button>
                   )}
                 </div>
-                <div className="col-span-1 text-right">{u.id ?? "-"}</div>
               </div>
             ))
           )}
