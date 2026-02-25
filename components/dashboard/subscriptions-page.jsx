@@ -41,6 +41,9 @@ export default function SubscriptionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [subscription, setSubscription] = useState(null);
+  const [originalSubscriptions, setOriginalSubscriptions] = useState([]);
+  const [editedByUserId, setEditedByUserId] = useState({});
+  const [mockMessage, setMockMessage] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -51,6 +54,24 @@ export default function SubscriptionsPage() {
 
         const normalized = res?.subscription ?? res ?? null;
         setSubscription(normalized);
+        if (normalized) {
+          const rowId = String(normalized.userId ?? normalized.id ?? "current-account");
+          setOriginalSubscriptions([
+            {
+              id: rowId,
+              userLabel: normalized.email || "Current Account",
+              plan: normalized.plan || "FREE",
+              status: normalized.status || "PENDING_PAYMENT",
+              deviceLimit:
+                normalized.deviceLimit ??
+                normalized.devicesLimit ??
+                normalized.limit ??
+                "-",
+            },
+          ]);
+        } else {
+          setOriginalSubscriptions([]);
+        }
       })
       .catch((err) => {
         if (!mounted) return;
@@ -109,6 +130,30 @@ export default function SubscriptionsPage() {
     subscription.limit ??
     "-";
 
+  const handleEdit = (rowId, field, value) => {
+    setEditedByUserId((prev) => ({
+      ...prev,
+      [rowId]: {
+        ...(prev[rowId] || {}),
+        [field]: value,
+      },
+    }));
+    setMockMessage("");
+  };
+
+  const handleReset = (rowId) => {
+    setEditedByUserId((prev) => {
+      const next = { ...prev };
+      delete next[rowId];
+      return next;
+    });
+    setMockMessage("");
+  };
+
+  const handleApply = (row) => {
+    setMockMessage(`Mock: Payment updated for ${row.userLabel}`);
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -141,6 +186,83 @@ export default function SubscriptionsPage() {
             <p className="mt-2 font-mono text-sm text-foreground">{deviceLimit}</p>
           </div>
         </div>
+      </div>
+
+      <div className="rounded-md border border-primary/30 bg-primary/10 p-4">
+        <p className="text-sm font-medium text-primary">Payment Control (Mock Mode)</p>
+        <p className="mt-1 text-xs text-muted-foreground">Actions are UI-only (no backend update yet).</p>
+      </div>
+
+      {mockMessage ? (
+        <div className="rounded-md border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary">
+          {mockMessage}
+        </div>
+      ) : null}
+
+      <div className="overflow-x-auto rounded-md border border-border bg-card shadow-sm">
+        <table className="min-w-[980px] w-full text-sm">
+          <thead>
+            <tr className="border-b border-border bg-muted/50">
+              <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Account</th>
+              <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Plan</th>
+              <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
+              <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Device Limit</th>
+              <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Payment Control</th>
+            </tr>
+          </thead>
+          <tbody>
+            {originalSubscriptions.map((row) => {
+              const edited = editedByUserId[row.id] || {};
+              const plan = edited.plan || row.plan;
+              const status = edited.status || row.status;
+              const isChanged = plan !== row.plan || status !== row.status;
+
+              return (
+                <tr key={row.id} className="border-b border-border last:border-0">
+                  <td className="px-5 py-3.5 text-foreground">{row.userLabel}</td>
+                  <td className="px-5 py-3.5 text-foreground">{plan}</td>
+                  <td className="px-5 py-3.5 text-foreground">{status}</td>
+                  <td className="px-5 py-3.5 font-mono text-xs text-foreground">{row.deviceLimit}</td>
+                  <td className="px-5 py-3.5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <select
+                        value={plan}
+                        onChange={(e) => handleEdit(row.id, "plan", e.target.value)}
+                        className="rounded-md border border-border bg-card px-2 py-1 text-xs text-foreground"
+                      >
+                        <option value="FREE">FREE</option>
+                        <option value="PRO">PRO</option>
+                      </select>
+                      <select
+                        value={status}
+                        onChange={(e) => handleEdit(row.id, "status", e.target.value)}
+                        className="rounded-md border border-border bg-card px-2 py-1 text-xs text-foreground"
+                      >
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="PENDING_PAYMENT">PENDING_PAYMENT</option>
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => handleApply(row)}
+                        disabled={!isChanged}
+                        className="rounded-md border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Apply
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleReset(row.id)}
+                        className="rounded-md border border-border bg-card px-2.5 py-1 text-xs font-medium text-foreground"
+                      >
+                        Reset
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   );
