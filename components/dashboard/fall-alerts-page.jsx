@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAlerts } from "@/services/alerts";
+import { getDevices } from "@/services/devices";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const ALERT_TYPE_OPTIONS = [
@@ -41,6 +42,16 @@ function formatTimestamp(alert) {
   });
 }
 
+function getDeviceKey(alert) {
+  if (alert.deviceId) return alert.deviceId;
+  if (alert.source) return alert.source;
+  if (typeof alert.device === "string") return alert.device;
+  if (alert.device && typeof alert.device === "object") {
+    return alert.device.deviceId || alert.device.id || "";
+  }
+  return alert.device_id || "";
+}
+
 function StatusBadge({ status }) {
   const styles = {
     NEW: "bg-destructive/10 text-destructive",
@@ -62,15 +73,32 @@ export default function FallAlertsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [alerts, setAlerts] = useState([]);
+  const [devicesByDeviceId, setDevicesByDeviceId] = useState(new Map());
   const [typeFilter, setTypeFilter] = useState("ALL");
 
   useEffect(() => {
     let mounted = true;
 
-    getAlerts()
-      .then((res) => {
+    Promise.allSettled([getAlerts(), getDevices()])
+      .then(([alertsResult, devicesResult]) => {
         if (!mounted) return;
-        const list = Array.isArray(res) ? res : res?.alerts ?? [];
+        const alertsPayload =
+          alertsResult.status === "fulfilled" ? alertsResult.value : null;
+        const list = Array.isArray(alertsPayload)
+          ? alertsPayload
+          : alertsPayload?.alerts ?? [];
+
+        const devicesPayload =
+          devicesResult.status === "fulfilled" ? devicesResult.value : null;
+        const devices = Array.isArray(devicesPayload)
+          ? devicesPayload
+          : devicesPayload?.devices ?? [];
+        const lookup = new Map(
+          devices
+            .filter((d) => d?.deviceId)
+            .map((d) => [String(d.deviceId), d])
+        );
+        setDevicesByDeviceId(lookup);
 
         const normalized = list
           .map((alert) => ({
@@ -83,22 +111,8 @@ export default function FallAlertsPage() {
               alert.time ||
               alert.occurredAt ||
               null,
-            displayDeviceId:
-              alert.device?.deviceId ||
-              alert.deviceId ||
-              alert.device?.id ||
-              "-",
-            displayHousehold:
-              alert.device?.user?.email ||
-              alert.user?.email ||
-              alert.householdEmail ||
-              alert.householdName ||
-              "-",
-            displayResident:
-              alert.resident?.name ||
-              alert.elderly ||
-              alert.residentName ||
-              "-",
+            deviceKey: getDeviceKey(alert),
+            displayResident: alert.elderly || alert.room || "Unknown",
             displayStatus: alert.status || "UNKNOWN",
           }))
           .filter((alert) => ["FALL_DETECTED", "NO_MOVEMENT", "UNUSUAL_ACTIVITY"].includes(alert.normalizedType));
@@ -204,18 +218,24 @@ export default function FallAlertsPage() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((alert) => (
-              <tr key={alert.id} className="border-b border-border last:border-0 transition-colors hover:bg-muted/30">
-                <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-foreground">{formatTimestamp(alert)}</td>
-                <td className="px-5 py-3.5 text-foreground">{formatAlertType(alert.normalizedType)}</td>
-                <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-muted-foreground">{alert.displayDeviceId}</td>
-                <td className="px-5 py-3.5 text-foreground">{alert.displayHousehold}</td>
-                <td className="px-5 py-3.5 text-foreground">{alert.displayResident}</td>
-                <td className="px-5 py-3.5">
-                  <StatusBadge status={alert.displayStatus} />
-                </td>
-              </tr>
-            ))}
+            {filtered.map((alert) => {
+              const dev = devicesByDeviceId.get(String(alert.deviceKey || ""));
+              const deviceId = dev?.deviceId || alert.deviceKey || "Unknown";
+              const household = dev?.userId ? `User #${dev.userId}` : "Unassigned";
+
+              return (
+                <tr key={alert.id} className="border-b border-border last:border-0 transition-colors hover:bg-muted/30">
+                  <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-foreground">{formatTimestamp(alert)}</td>
+                  <td className="px-5 py-3.5 text-foreground">{formatAlertType(alert.normalizedType)}</td>
+                  <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-muted-foreground">{deviceId}</td>
+                  <td className="px-5 py-3.5 text-foreground">{household}</td>
+                  <td className="px-5 py-3.5 text-foreground">{alert.displayResident}</td>
+                  <td className="px-5 py-3.5">
+                    <StatusBadge status={alert.displayStatus} />
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
