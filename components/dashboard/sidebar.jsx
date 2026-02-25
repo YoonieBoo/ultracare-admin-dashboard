@@ -17,7 +17,7 @@ import { getToken } from "@/utils/auth";
 
 const navItems = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
-  { key: "households", label: "Household Admins", icon: Users },
+  { key: "households", label: "Users", icon: Users },
   { key: "subscriptions", label: "Subscriptions", icon: CreditCard },
   { key: "devices", label: "Devices", icon: Cpu },
   { key: "alerts", label: "Alerts", icon: AlertTriangle },
