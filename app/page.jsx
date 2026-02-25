@@ -69,7 +69,7 @@ export default function DashboardPage() {
         <div className="mx-auto w-full max-w-[1400px] px-4 py-4 sm:px-6 sm:py-6 lg:px-10 lg:py-8">
           {activePage === "overview" ? (
   <div className="space-y-6">
-    <Overview />
+    <Overview onNavigate={setActivePage} />
 
     {/* Monthly Falls Chart */}
     <section className="rounded-xl border border-border bg-card p-4 shadow-sm sm:p-6">

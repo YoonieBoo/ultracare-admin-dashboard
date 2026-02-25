@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getAdminStats } from "@/services/admin";
 
-export default function Overview() {
+export default function Overview({ onNavigate }) {
   const router = useRouter();
 
   const [stats, setStats] = useState(null);
@@ -61,24 +61,28 @@ export default function Overview() {
       value: totalHouseholdAdmins,
       icon: Users,
       description: "Registered households",
+      target: "households",
     },
     {
       label: "Active PRO Subscriptions",
       value: activeProSubscriptions,
       icon: CreditCard,
       description: "Paid active plans",
+      target: "subscriptions",
     },
     {
       label: "Total Registered Devices",
       value: totalDevices,
       icon: Cpu,
       description: "Across all households",
+      target: "devices",
     },
     {
       label: "Alerts (Today)",
       value: alertsToday,
       icon: AlertTriangle,
       description: "FALL/NO_MOVEMENT/UNUSUAL",
+      target: "alerts",
     },
   ];
 
@@ -124,9 +128,11 @@ export default function Overview() {
         {metrics.map((metric) => {
           const Icon = metric.icon;
           return (
-            <div
+            <button
+              type="button"
               key={metric.label}
-              className="flex min-h-28 flex-col justify-between rounded-md border border-border bg-card p-5 shadow-sm"
+              onClick={() => onNavigate?.(metric.target)}
+              className="flex min-h-28 w-full cursor-pointer flex-col justify-between rounded-md border border-border bg-card p-5 text-left shadow-sm transition-colors hover:bg-muted/20"
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -140,7 +146,7 @@ export default function Overview() {
                 </span>
                 <p className="mt-1 text-xs text-muted-foreground">{metric.description}</p>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>
