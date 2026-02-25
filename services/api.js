@@ -26,4 +26,8 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+export async function setHouseholdAdminDisabled(id, isDisabled) {
+  return (await api.patch(`/household-admins/${id}/status`, { isDisabled })).data;
+}
+
 export default api;
