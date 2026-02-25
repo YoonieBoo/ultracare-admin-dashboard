@@ -17,9 +17,9 @@ function formatDate(iso) {
 }
 
 function formatLastActive(iso) {
-  if (!iso) return "-";
+  if (!iso) return "Never";
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "-";
+  if (Number.isNaN(d.getTime())) return "Never";
   return d.toLocaleString("en-US", {
     month: "short",
     day: "numeric",
@@ -80,7 +80,7 @@ export default function DevicesPage() {
           return {
             id: d.id ?? deviceId, // React key
             deviceId,
-            household: userId ? `User #${userId}` : "-", // placeholder until you join household/user table
+            household: userId ? `User #${userId}` : "Unassigned", // placeholder until you join household/user table
             location: room !== "-" ? room : "-", // use room as location for now
             status: isActive ? "Online" : "Offline",
             registeredDate: formatDate(createdAt),
