@@ -173,7 +173,6 @@ export default function DevicesPage() {
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Location</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Registered</th>
-              <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Last Active</th>
             </tr>
           </thead>
 
@@ -194,7 +193,6 @@ export default function DevicesPage() {
                     <DeviceStatus status={device.status} />
                   </td>
                   <td className="px-5 py-3.5 text-muted-foreground">{device.registeredDate}</td>
-                  <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-muted-foreground">{device.lastActive}</td>
                 </tr>
               ))
             )}
