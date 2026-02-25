@@ -11,6 +11,8 @@ import AlertsPage from "@/components/dashboard/fall-alerts-page";
 import SystemHealth from "@/components/dashboard/system-health";
 import SettingsPage from "@/components/dashboard/settings-page";
 
+import MonthlyFallsChart from "@/components/dashboard/MonthlyFallsChart";
+
 const pages = {
   overview: Overview,
   households: HouseholdAdmins,
@@ -65,7 +67,24 @@ export default function DashboardPage() {
         </header>
 
         <div className="mx-auto w-full max-w-[1400px] px-4 py-4 sm:px-6 sm:py-6 lg:px-10 lg:py-8">
-          <ActiveComponent />
+          {activePage === "overview" ? (
+  <div className="space-y-6">
+    <Overview />
+
+    {/* Monthly Falls Chart */}
+    <section className="rounded-xl border border-border bg-card p-4 shadow-sm sm:p-6">
+      <div className="mb-4">
+        <h2 className="text-sm font-semibold text-foreground">Monthly Fall Events</h2>
+        <p className="text-xs text-muted-foreground">
+          Total FALL_DETECTED alerts per month
+        </p>
+      </div>
+      <MonthlyFallsChart />
+    </section>
+  </div>
+) : (
+  <ActiveComponent />
+)}
         </div>
       </main>
     </div>
