@@ -76,6 +76,30 @@ export default function FallAlertsPage() {
           .map((alert) => ({
             ...alert,
             normalizedType: normalizeAlertType(alert.type || alert.alertType),
+            _ts:
+              alert.timestampIso ||
+              alert.createdAt ||
+              alert.timestamp ||
+              alert.time ||
+              alert.occurredAt ||
+              null,
+            displayDeviceId:
+              alert.device?.deviceId ||
+              alert.deviceId ||
+              alert.device?.id ||
+              "-",
+            displayHousehold:
+              alert.device?.user?.email ||
+              alert.user?.email ||
+              alert.householdEmail ||
+              alert.householdName ||
+              "-",
+            displayResident:
+              alert.resident?.name ||
+              alert.elderly ||
+              alert.residentName ||
+              "-",
+            displayStatus: alert.status || "UNKNOWN",
           }))
           .filter((alert) => ["FALL_DETECTED", "NO_MOVEMENT", "UNUSUAL_ACTIVITY"].includes(alert.normalizedType));
 
@@ -96,7 +120,7 @@ export default function FallAlertsPage() {
 
   const filtered = useMemo(() => {
     const byType = typeFilter === "ALL" ? alerts : alerts.filter((alert) => alert.normalizedType === typeFilter);
-    return [...byType].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    return [...byType].sort((a, b) => new Date(b._ts) - new Date(a._ts));
   }, [alerts, typeFilter]);
 
   const newCount = filtered.filter((a) => String(a.status || "").toUpperCase() === "NEW").length;
@@ -184,11 +208,11 @@ export default function FallAlertsPage() {
               <tr key={alert.id} className="border-b border-border last:border-0 transition-colors hover:bg-muted/30">
                 <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-foreground">{formatTimestamp(alert)}</td>
                 <td className="px-5 py-3.5 text-foreground">{formatAlertType(alert.normalizedType)}</td>
-                <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-muted-foreground">{alert.deviceId}</td>
-                <td className="px-5 py-3.5 text-foreground">{alert.householdName}</td>
-                <td className="px-5 py-3.5 text-foreground">{alert.residentName}</td>
+                <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-muted-foreground">{alert.displayDeviceId}</td>
+                <td className="px-5 py-3.5 text-foreground">{alert.displayHousehold}</td>
+                <td className="px-5 py-3.5 text-foreground">{alert.displayResident}</td>
                 <td className="px-5 py-3.5">
-                  <StatusBadge status={alert.status} />
+                  <StatusBadge status={alert.displayStatus} />
                 </td>
               </tr>
             ))}
