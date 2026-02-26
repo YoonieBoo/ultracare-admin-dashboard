@@ -57,7 +57,9 @@ function getHouseholdUserId(alert) {
   return String(
     alert.device?.userId ??
       alert.device?.user?.id ??
+      alert.user?.id ??
       alert.userId ??
+      alert.household?.id ??
       alert.householdId ??
       alert.resident?.device?.userId ??
       ""
