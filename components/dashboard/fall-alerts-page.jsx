@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/services/api";
 import { getAlerts } from "@/services/alerts";
-import { getDevices } from "@/services/devices";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const ALERT_TYPE_OPTIONS = [
@@ -53,17 +52,31 @@ function getDeviceKey(alert) {
   return alert.device_id || "";
 }
 
-function getHouseholdUserId(alert) {
-  return String(
-    alert.device?.userId ??
-      alert.device?.user?.id ??
-      alert.user?.id ??
-      alert.userId ??
-      alert.household?.id ??
-      alert.householdId ??
-      alert.resident?.device?.userId ??
-      ""
+function getAlertDeviceId(alert) {
+  return (
+    alert.deviceId ??
+    alert.device?.deviceId ??
+    alert.device?.id ??
+    alert.device_id ??
+    ""
   );
+}
+
+function getAlertUserId(alert, deviceUserIdByDeviceId) {
+  const directUserId =
+    alert.userId ??
+    alert.householdAdminId ??
+    alert.householdId ??
+    alert.user?.id;
+
+  if (directUserId !== undefined && directUserId !== null && String(directUserId) !== "") {
+    return directUserId;
+  }
+
+  const deviceId = getAlertDeviceId(alert);
+  if (!deviceId) return "";
+
+  return deviceUserIdByDeviceId.get(String(deviceId)) ?? "";
 }
 
 function StatusBadge({ status }) {
@@ -87,8 +100,7 @@ export default function FallAlertsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [alerts, setAlerts] = useState([]);
-  const [devicesByDeviceId, setDevicesByDeviceId] = useState(new Map());
-  const [householdEmailById, setHouseholdEmailById] = useState(new Map());
+  const [emailByUserId, setEmailByUserId] = useState(new Map());
   const [typeFilter, setTypeFilter] = useState("ALL");
 
   useEffect(() => {
@@ -96,7 +108,7 @@ export default function FallAlertsPage() {
 
     Promise.all([
       getAlerts(),
-      getDevices().catch(() => null),
+      api.get("/app/devices").catch(() => ({ data: { devices: [] } })),
       api.get("/household-admins").catch(() => ({ data: { users: [] } })),
     ])
       .then(([alertsPayload, devicesPayload, adminsResponse]) => {
@@ -105,15 +117,15 @@ export default function FallAlertsPage() {
           ? alertsPayload
           : alertsPayload?.alerts ?? [];
 
-        const devices = Array.isArray(devicesPayload)
-          ? devicesPayload
-          : devicesPayload?.devices ?? [];
-        const lookup = new Map(
-          devices
+        const devicesBody = devicesPayload?.data ?? devicesPayload ?? {};
+        const devices = Array.isArray(devicesBody)
+          ? devicesBody
+          : devicesBody?.devices ?? [];
+        const deviceUserIdByDeviceId = new Map(
+          (Array.isArray(devices) ? devices : [])
             .filter((d) => d?.deviceId)
-            .map((d) => [String(d.deviceId), d])
+            .map((d) => [String(d.deviceId), d.userId])
         );
-        setDevicesByDeviceId(lookup);
 
         const adminsBody = adminsResponse?.data ?? {};
         const admins =
@@ -127,7 +139,7 @@ export default function FallAlertsPage() {
             .filter((a) => a?.id !== undefined && a?.email)
             .map((a) => [String(a.id), a.email])
         );
-        setHouseholdEmailById(emailLookup);
+        setEmailByUserId(emailLookup);
 
         const normalized = list
           .map((alert) => ({
@@ -141,7 +153,7 @@ export default function FallAlertsPage() {
               alert.occurredAt ||
               null,
             deviceKey: getDeviceKey(alert),
-            householdUserId: getHouseholdUserId(alert),
+            householdUserId: getAlertUserId(alert, deviceUserIdByDeviceId),
             displayResident: alert.elderly || alert.room || "Unknown",
             displayStatus: alert.status || "UNKNOWN",
           }))
@@ -249,13 +261,10 @@ export default function FallAlertsPage() {
           </thead>
           <tbody>
             {filtered.map((alert) => {
-              const dev = devicesByDeviceId.get(String(alert.deviceKey || ""));
-              const deviceId = dev?.deviceId || alert.deviceKey || "Unknown";
-              const householdUserId = String(
-                alert.householdUserId || dev?.userId || ""
-              );
+              const deviceId = alert.deviceKey || "Unknown";
+              const householdUserId = String(alert.householdUserId || "");
               const householdEmail =
-                householdEmailById.get(householdUserId) || "Unassigned";
+                emailByUserId.get(householdUserId) || "Unassigned";
 
               return (
                 <tr key={alert.id} className="border-b border-border last:border-0 transition-colors hover:bg-muted/30">
