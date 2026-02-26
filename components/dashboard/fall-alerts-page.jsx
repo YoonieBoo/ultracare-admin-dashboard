@@ -212,7 +212,7 @@ export default function FallAlertsPage() {
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Timestamp</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Alert Type</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Device ID</th>
-              <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Household</th>
+              <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Household ID</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Resident</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
             </tr>
@@ -221,14 +221,14 @@ export default function FallAlertsPage() {
             {filtered.map((alert) => {
               const dev = devicesByDeviceId.get(String(alert.deviceKey || ""));
               const deviceId = dev?.deviceId || alert.deviceKey || "Unknown";
-              const household = dev?.userId ? `User #${dev.userId}` : "Unassigned";
+              const householdId = alert?.household?.id ?? alert?.user?.id ?? "N/A";
 
               return (
                 <tr key={alert.id} className="border-b border-border last:border-0 transition-colors hover:bg-muted/30">
                   <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-foreground">{formatTimestamp(alert)}</td>
                   <td className="px-5 py-3.5 text-foreground">{formatAlertType(alert.normalizedType)}</td>
                   <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-muted-foreground">{deviceId}</td>
-                  <td className="px-5 py-3.5 text-foreground">{household}</td>
+                  <td className="px-5 py-3.5 text-foreground">{householdId}</td>
                   <td className="px-5 py-3.5 text-foreground">{alert.displayResident}</td>
                   <td className="px-5 py-3.5">
                     <StatusBadge status={alert.displayStatus} />
