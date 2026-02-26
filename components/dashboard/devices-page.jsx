@@ -80,7 +80,7 @@ export default function DevicesPage() {
           return {
             id: d.id ?? deviceId, // React key
             deviceId,
-            household: userId ? `User #${userId}` : "Unassigned", // placeholder until you join household/user table
+            household: userId ?? "Unassigned",
             location: room !== "-" ? room : "-", // use room as location for now
             status: isActive ? "Online" : "Offline",
             registeredDate: formatDate(createdAt),
@@ -169,7 +169,7 @@ export default function DevicesPage() {
           <thead>
             <tr className="border-b border-border bg-muted/50">
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Device ID</th>
-              <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Household</th>
+              <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">User ID</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Location</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Registered</th>
