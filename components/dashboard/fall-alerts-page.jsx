@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import api from "@/services/api";
 import { getAlerts } from "@/services/alerts";
 import { getDevices } from "@/services/devices";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -52,6 +53,17 @@ function getDeviceKey(alert) {
   return alert.device_id || "";
 }
 
+function getHouseholdUserId(alert) {
+  return String(
+    alert.device?.userId ??
+      alert.device?.user?.id ??
+      alert.userId ??
+      alert.householdId ??
+      alert.resident?.device?.userId ??
+      ""
+  );
+}
+
 function StatusBadge({ status }) {
   const styles = {
     NEW: "bg-destructive/10 text-destructive",
@@ -74,22 +86,23 @@ export default function FallAlertsPage() {
   const [error, setError] = useState(null);
   const [alerts, setAlerts] = useState([]);
   const [devicesByDeviceId, setDevicesByDeviceId] = useState(new Map());
+  const [householdEmailById, setHouseholdEmailById] = useState(new Map());
   const [typeFilter, setTypeFilter] = useState("ALL");
 
   useEffect(() => {
     let mounted = true;
 
-    Promise.allSettled([getAlerts(), getDevices()])
-      .then(([alertsResult, devicesResult]) => {
+    Promise.all([
+      getAlerts(),
+      getDevices().catch(() => null),
+      api.get("/household-admins").catch(() => ({ data: { users: [] } })),
+    ])
+      .then(([alertsPayload, devicesPayload, adminsResponse]) => {
         if (!mounted) return;
-        const alertsPayload =
-          alertsResult.status === "fulfilled" ? alertsResult.value : null;
         const list = Array.isArray(alertsPayload)
           ? alertsPayload
           : alertsPayload?.alerts ?? [];
 
-        const devicesPayload =
-          devicesResult.status === "fulfilled" ? devicesResult.value : null;
         const devices = Array.isArray(devicesPayload)
           ? devicesPayload
           : devicesPayload?.devices ?? [];
@@ -99,6 +112,20 @@ export default function FallAlertsPage() {
             .map((d) => [String(d.deviceId), d])
         );
         setDevicesByDeviceId(lookup);
+
+        const adminsBody = adminsResponse?.data ?? {};
+        const admins =
+          adminsBody?.users ??
+          adminsBody?.householdAdmins ??
+          adminsBody?.admins ??
+          adminsBody?.data ??
+          [];
+        const emailLookup = new Map(
+          (Array.isArray(admins) ? admins : [])
+            .filter((a) => a?.id !== undefined && a?.email)
+            .map((a) => [String(a.id), a.email])
+        );
+        setHouseholdEmailById(emailLookup);
 
         const normalized = list
           .map((alert) => ({
@@ -112,6 +139,7 @@ export default function FallAlertsPage() {
               alert.occurredAt ||
               null,
             deviceKey: getDeviceKey(alert),
+            householdUserId: getHouseholdUserId(alert),
             displayResident: alert.elderly || alert.room || "Unknown",
             displayStatus: alert.status || "UNKNOWN",
           }))
@@ -212,7 +240,7 @@ export default function FallAlertsPage() {
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Timestamp</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Alert Type</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Device ID</th>
-              <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Household ID</th>
+              <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Household Email</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Resident</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
             </tr>
@@ -221,14 +249,15 @@ export default function FallAlertsPage() {
             {filtered.map((alert) => {
               const dev = devicesByDeviceId.get(String(alert.deviceKey || ""));
               const deviceId = dev?.deviceId || alert.deviceKey || "Unknown";
-              const householdId = alert?.household?.id ?? alert?.user?.id ?? "N/A";
+              const householdEmail =
+                householdEmailById.get(String(alert.householdUserId || "")) || "Unassigned";
 
               return (
                 <tr key={alert.id} className="border-b border-border last:border-0 transition-colors hover:bg-muted/30">
                   <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-foreground">{formatTimestamp(alert)}</td>
                   <td className="px-5 py-3.5 text-foreground">{formatAlertType(alert.normalizedType)}</td>
                   <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-muted-foreground">{deviceId}</td>
-                  <td className="px-5 py-3.5 text-foreground">{householdId}</td>
+                  <td className="px-5 py-3.5 text-foreground">{householdEmail}</td>
                   <td className="px-5 py-3.5 text-foreground">{alert.displayResident}</td>
                   <td className="px-5 py-3.5">
                     <StatusBadge status={alert.displayStatus} />
