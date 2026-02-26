@@ -169,9 +169,7 @@ export default function DevicesPage() {
           <thead>
             <tr className="border-b border-border bg-muted/50">
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Device ID</th>
-              <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">User ID</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Location</th>
-              <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
               <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Registered</th>
             </tr>
           </thead>
@@ -187,11 +185,7 @@ export default function DevicesPage() {
               devices.map((device) => (
                 <tr key={device.id} className="border-b border-border last:border-0 transition-colors hover:bg-muted/30">
                   <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-foreground">{device.deviceId}</td>
-                  <td className="px-5 py-3.5 text-foreground">{device.household}</td>
                   <td className="px-5 py-3.5 text-muted-foreground">{device.location}</td>
-                  <td className="px-5 py-3.5">
-                    <DeviceStatus status={device.status} />
-                  </td>
                   <td className="px-5 py-3.5 text-muted-foreground">{device.registeredDate}</td>
                 </tr>
               ))
