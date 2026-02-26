@@ -249,8 +249,11 @@ export default function FallAlertsPage() {
             {filtered.map((alert) => {
               const dev = devicesByDeviceId.get(String(alert.deviceKey || ""));
               const deviceId = dev?.deviceId || alert.deviceKey || "Unknown";
+              const householdUserId = String(
+                alert.householdUserId || dev?.userId || ""
+              );
               const householdEmail =
-                householdEmailById.get(String(alert.householdUserId || "")) || "Unassigned";
+                householdEmailById.get(householdUserId) || "Unassigned";
 
               return (
                 <tr key={alert.id} className="border-b border-border last:border-0 transition-colors hover:bg-muted/30">
