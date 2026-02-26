@@ -264,7 +264,10 @@ export default function FallAlertsPage() {
               const deviceId = alert.deviceKey || "Unknown";
               const householdUserId = String(alert.householdUserId || "");
               const householdEmail =
-                emailByUserId.get(householdUserId) || "Unassigned";
+                alert.householdEmail ||
+                alert.householdAdminEmail ||
+                emailByUserId.get(householdUserId) ||
+                "Unassigned";
 
               return (
                 <tr key={alert.id} className="border-b border-border last:border-0 transition-colors hover:bg-muted/30">
