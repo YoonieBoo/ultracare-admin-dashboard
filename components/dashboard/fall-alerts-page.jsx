@@ -121,11 +121,18 @@ export default function FallAlertsPage() {
         const devices = Array.isArray(devicesBody)
           ? devicesBody
           : devicesBody?.devices ?? [];
-        const deviceUserIdByDeviceId = new Map(
-          (Array.isArray(devices) ? devices : [])
-            .filter((d) => d?.deviceId)
-            .map((d) => [String(d.deviceId), d.userId])
-        );
+        const deviceUserIdByDeviceId = new Map();
+        (Array.isArray(devices) ? devices : []).forEach((d) => {
+          if (d?.deviceId !== undefined && d?.deviceId !== null) {
+            deviceUserIdByDeviceId.set(String(d.deviceId), d.userId);
+          }
+          if (d?.id !== undefined && d?.id !== null) {
+            deviceUserIdByDeviceId.set(String(d.id), d.userId);
+          }
+          if (d?.source) {
+            deviceUserIdByDeviceId.set(String(d.source), d.userId);
+          }
+        });
 
         const adminsBody = adminsResponse?.data ?? {};
         const admins =
