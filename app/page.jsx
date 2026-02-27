@@ -72,9 +72,6 @@ export default function DashboardPage() {
     <section className="rounded-xl border border-border bg-card p-4 shadow-sm sm:p-6">
       <div className="mb-4">
         <h2 className="text-sm font-semibold text-foreground">Monthly Fall Events</h2>
-        <p className="text-xs text-muted-foreground">
-          Total FALL_DETECTED alerts per month
-        </p>
       </div>
       <MonthlyFallsChart />
     </section>

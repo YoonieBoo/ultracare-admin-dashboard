@@ -33,13 +33,12 @@ export default function MonthlyFallsChart() {
   }, []);
 
   return (
-    <div style={{ width: "100%", height: 300 }}>
-      <h3 style={{ marginBottom: 16 }}>Monthly Fall Events</h3>
-      <ResponsiveContainer>
-        <BarChart data={data}>
+    <div style={{ width: "100%", height: 300, touchAction: "pan-y" }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
           <XAxis dataKey="month" />
           <YAxis />
-          <Tooltip />
+          <Tooltip wrapperStyle={{ pointerEvents: "none" }} />
           <Bar dataKey="falls" fill="#ef4444" />
         </BarChart>
       </ResponsiveContainer>
