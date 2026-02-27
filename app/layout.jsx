@@ -5,20 +5,7 @@ export const metadata = {
   title: "UltraCare Admin Dashboard",
   description: "Platform administration dashboard for UltraCare healthcare monitoring",
   icons: {
-    icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
-    ],
+    icon: "/logo.ico",
     apple: "/apple-icon.png",
   },
 };
