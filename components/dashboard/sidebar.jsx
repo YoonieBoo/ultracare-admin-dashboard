@@ -6,7 +6,6 @@ import {
   CreditCard,
   Cpu,
   AlertTriangle,
-  Settings,
   X,
 } from "lucide-react";
 import Image from "next/image";
@@ -20,7 +19,6 @@ const navItems = [
   { key: "subscriptions", label: "Subscriptions", icon: CreditCard },
   { key: "devices", label: "Devices", icon: Cpu },
   { key: "alerts", label: "Alerts", icon: AlertTriangle },
-  { key: "settings", label: "Settings", icon: Settings },
 ];
 
 export default function Sidebar({ activePage, onNavigate, mobileOpen = false, onClose }) {
