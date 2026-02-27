@@ -1,6 +1,59 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import api from "@/services/api";
+import { getAdminStats } from "@/services/admin";
+
 export default function SettingsPage() {
+  const router = useRouter();
+  const [healthData, setHealthData] = useState(null);
+  const [statsData, setStatsData] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    Promise.all([
+      api.get("/health").catch(() => ({ data: null })),
+      getAdminStats().catch(() => null),
+    ])
+      .then(([healthRes, statsRes]) => {
+        if (!mounted) return;
+        setHealthData(healthRes?.data ?? null);
+        setStatsData(statsRes ?? null);
+      })
+      .catch((err) => {
+        if (err?.response?.status === 401) router.push("/login");
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [router]);
+
+  const adminEmail = useMemo(() => {
+    if (typeof window === "undefined") return "admin@ultracare.io";
+    const token = localStorage.getItem("ultracare_admin_token");
+    if (!token) return "admin@ultracare.io";
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload?.email || payload?.user?.email || "admin@ultracare.io";
+    } catch (e) {
+      return "admin@ultracare.io";
+    }
+  }, []);
+
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  const apiVersion = healthData?.version || healthData?.apiVersion || "v2.4.1";
+  const webhookUrl = healthData?.webhookUrl || `${process.env.NEXT_PUBLIC_API_BASE_URL || "https://ultracare-backend-jxny.onrender.com/api"}/alerts`;
+  const sensitivity = healthData?.fallDetectionSensitivity || healthData?.alertThreshold || "75%";
+  const emailNotificationsEnabled =
+    typeof healthData?.emailNotificationsEnabled === "boolean"
+      ? healthData.emailNotificationsEnabled
+      : true;
+  const escalationMinutes = healthData?.autoEscalationMinutes || 15;
+  const platformName = healthData?.platformName || "UltraCare";
+
   return (
     <div className="space-y-6">
       <div>
@@ -19,21 +72,21 @@ export default function SettingsPage() {
                 <p className="text-sm font-medium text-foreground">Platform Name</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">Display name shown across the admin console</p>
               </div>
-              <span className="text-sm text-foreground">UltraCare</span>
+              <span className="text-sm text-foreground">{platformName}</span>
             </div>
             <div className="grid gap-2 px-5 py-4 md:grid-cols-[1fr_auto] md:items-center">
               <div>
                 <p className="text-sm font-medium text-foreground">Admin Email</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">Primary contact for system notifications</p>
               </div>
-              <span className="text-sm text-muted-foreground">admin@ultracare.io</span>
+              <span className="text-sm text-muted-foreground">{adminEmail}</span>
             </div>
             <div className="grid gap-2 px-5 py-4 md:grid-cols-[1fr_auto] md:items-center">
               <div>
                 <p className="text-sm font-medium text-foreground">Timezone</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">Default timezone for reporting and alerts</p>
               </div>
-              <span className="text-sm text-muted-foreground">America/New_York (EST)</span>
+              <span className="text-sm text-muted-foreground">{timezone}</span>
             </div>
           </div>
         </section>
@@ -48,21 +101,23 @@ export default function SettingsPage() {
                 <p className="text-sm font-medium text-foreground">Fall Detection Sensitivity</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">Minimum confidence threshold for fall alerts</p>
               </div>
-              <span className="font-mono text-sm text-foreground">75%</span>
+              <span className="font-mono text-sm text-foreground">{String(sensitivity)}</span>
             </div>
             <div className="grid gap-2 px-5 py-4 md:grid-cols-[1fr_auto] md:items-center">
               <div>
                 <p className="text-sm font-medium text-foreground">Email Notifications</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">Send email alerts for new safety events</p>
               </div>
-              <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">Enabled</span>
+              <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${emailNotificationsEnabled ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+                {emailNotificationsEnabled ? "Enabled" : "Disabled"}
+              </span>
             </div>
             <div className="grid gap-2 px-5 py-4 md:grid-cols-[1fr_auto] md:items-center">
               <div>
                 <p className="text-sm font-medium text-foreground">Auto-Escalation</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">Escalate unacknowledged alerts after timeout</p>
               </div>
-              <span className="text-sm text-muted-foreground">After 15 minutes</span>
+              <span className="text-sm text-muted-foreground">{`After ${escalationMinutes} minutes`}</span>
             </div>
           </div>
         </section>
@@ -78,7 +133,7 @@ export default function SettingsPage() {
               <p className="text-sm font-medium text-foreground">API Version</p>
               <p className="mt-0.5 text-xs text-muted-foreground">Current API version in production</p>
             </div>
-            <span className="font-mono text-sm text-muted-foreground">v2.4.1</span>
+            <span className="font-mono text-sm text-muted-foreground">{apiVersion}</span>
           </div>
           <div className="grid gap-2 px-5 py-4 md:grid-cols-[1fr_auto] md:items-center">
             <div>
@@ -86,8 +141,15 @@ export default function SettingsPage() {
               <p className="mt-0.5 text-xs text-muted-foreground">Endpoint for external alert delivery</p>
             </div>
             <span className="max-w-full overflow-hidden text-ellipsis font-mono text-xs text-muted-foreground md:max-w-[420px]">
-              https://hooks.ultracare.io/v2/alerts
+              {webhookUrl}
             </span>
+          </div>
+          <div className="grid gap-2 px-5 py-4 md:grid-cols-[1fr_auto] md:items-center">
+            <div>
+              <p className="text-sm font-medium text-foreground">Alerts (Today)</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">Real-time count from platform stats</p>
+            </div>
+            <span className="font-mono text-sm text-muted-foreground">{statsData?.alertsToday ?? "-"}</span>
           </div>
         </div>
       </section>
