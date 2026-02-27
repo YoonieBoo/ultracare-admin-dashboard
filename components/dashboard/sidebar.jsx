@@ -6,7 +6,6 @@ import {
   CreditCard,
   Cpu,
   AlertTriangle,
-  Activity,
   Settings,
   X,
 } from "lucide-react";
@@ -21,7 +20,6 @@ const navItems = [
   { key: "subscriptions", label: "Subscriptions", icon: CreditCard },
   { key: "devices", label: "Devices", icon: Cpu },
   { key: "alerts", label: "Alerts", icon: AlertTriangle },
-  { key: "health", label: "System Health", icon: Activity },
   { key: "settings", label: "Settings", icon: Settings },
 ];
 

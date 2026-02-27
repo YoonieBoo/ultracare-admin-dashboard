@@ -8,7 +8,6 @@ import HouseholdAdmins from "@/components/dashboard/household-admins";
 import SubscriptionsPage from "@/components/dashboard/subscriptions-page";
 import DevicesPage from "@/components/dashboard/devices-page";
 import AlertsPage from "@/components/dashboard/fall-alerts-page";
-import SystemHealth from "@/components/dashboard/system-health";
 import SettingsPage from "@/components/dashboard/settings-page";
 
 import MonthlyFallsChart from "@/components/dashboard/MonthlyFallsChart";
@@ -19,12 +18,10 @@ const pages = {
   subscriptions: SubscriptionsPage,
   devices: DevicesPage,
   alerts: AlertsPage,
-  health: SystemHealth,
   settings: SettingsPage,
 };
 
 function getPageTitle(activePage) {
-  if (activePage === "health") return "System Health";
   if (activePage === "households") return "Household Admins";
   if (activePage === "alerts") return "Alerts";
   return activePage;
