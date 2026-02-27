@@ -91,36 +91,6 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        <section className="rounded-md border border-border bg-card shadow-sm">
-          <div className="border-b border-border bg-muted/50 px-5 py-3">
-            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Alert Configuration</span>
-          </div>
-          <div className="divide-y divide-border">
-            <div className="grid gap-2 px-5 py-4 md:grid-cols-[1fr_auto] md:items-center">
-              <div>
-                <p className="text-sm font-medium text-foreground">Fall Detection Sensitivity</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Minimum confidence threshold for fall alerts</p>
-              </div>
-              <span className="font-mono text-sm text-foreground">{String(sensitivity)}</span>
-            </div>
-            <div className="grid gap-2 px-5 py-4 md:grid-cols-[1fr_auto] md:items-center">
-              <div>
-                <p className="text-sm font-medium text-foreground">Email Notifications</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Send email alerts for new safety events</p>
-              </div>
-              <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${emailNotificationsEnabled ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
-                {emailNotificationsEnabled ? "Enabled" : "Disabled"}
-              </span>
-            </div>
-            <div className="grid gap-2 px-5 py-4 md:grid-cols-[1fr_auto] md:items-center">
-              <div>
-                <p className="text-sm font-medium text-foreground">Auto-Escalation</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Escalate unacknowledged alerts after timeout</p>
-              </div>
-              <span className="text-sm text-muted-foreground">{`After ${escalationMinutes} minutes`}</span>
-            </div>
-          </div>
-        </section>
       </div>
 
       <section className="rounded-md border border-border bg-card shadow-sm">
